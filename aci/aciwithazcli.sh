@@ -27,7 +27,7 @@ fi
 set -x
 aciname=$resourcegroup"aci0"
 uminame=$resourcegroup"umi0"
-nsgname=$resourcegroup"umi0"
+nsgname=$resourcegroup"nsg0"
 vnetname=$resourcegroup"vnet0"
 subnetname=$resourcegroup"acisubnet0"
 set +x
@@ -39,6 +39,7 @@ umiid=`az identity show -n $uminame --query id | sed "s/\"//g"`
 #az role assignment create --role contributor --assignee-object-id $oid --assignee-principal-type ServicePrincipal --scope $rgid
 
 az network nsg create -n $nsgname
+az network nsg rule create --nsg-name $nsgname -n AllowInternetOutbound --priority 4096 --access Allow --protocol '*' --source-address-prefixes '*' --destination-address-prefixes Internet --destination-port-ranges '*' --direction Outbound
 nsgid=`az network nsg show -n $nsgname --query id | sed "s/\"//g"`
 az network vnet create -n $vnetname --address-prefix 10.0.0.0/16 --subnet-name $subnetname --subnet-prefix 10.0.0.0/24 --nsg $nsgid
 subnetid=`az network vnet subnet show --vnet-name $vnetname -n $subnetname --query id | sed "s/\"//g"`
