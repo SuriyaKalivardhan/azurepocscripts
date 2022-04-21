@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "suriyaAccountNamePrefix": {
+        "type": "string"
+      },
+      "suriyaAccountType": {
+        "type": "string"
+      },
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]"
+      }
+    },
+    "variables": {
+      "suriyaAccountName": "[concat(parameters('suriyaAccountNamePrefix'), uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2019-06-01",
+        "name": "[variables('suriyaAccountName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "[parameters('suriyaAccountType')]"
+        },
+        "kind": "StorageV2",
+        "properties": {}
+      }
+    ],
+    "outputs": {
+      "storageEndpoint": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('suriyaAccountName')), '2019-06-01').primaryEndpoints.blob]"
+      }
+    }
+  }
