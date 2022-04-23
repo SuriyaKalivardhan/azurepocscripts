@@ -1,45 +1,249 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
-    "handler": "Microsoft.Azure.CreateUIDef",
-    "version": "0.1.2-preview",
-    "parameters": {
-      "basics": [
-        {}
-      ],
-      "steps": [
-        {
-          "name": "suriyaConfig",
-          "label": "Suriya settings",
-          "subLabel": {
-            "preValidation": "Configure the infrastructure settings",
-            "postValidation": "Done"
-          },
-          "bladeTitle": "Suriya settings",
-          "elements": [
-            {
-              "name": "suriyaAccounts",
-              "type": "Microsoft.Storage.MultiStorageAccountCombo",
-              "label": {
-                "prefix": "Suriya account name prefix",
-                "type": "Suriya account type"
-              },
-              "defaultValue": {
-                "type": "Standard_LRS"
-              },
-              "constraints": {
-                "allowedTypes": [
-                  "Premium_LRS",
-                  "Standard_LRS",
-                  "Standard_GRS"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "outputs": {
-        "prefix": "[steps('suriyaConfig').suriyaAccounts.prefix]",
-        "location": "[location()]"
-      }
-    }
-  }
+	"$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+	"handler": "Microsoft.Azure.CreateUIDef",
+	"version": "0.1.2-preview",
+	"parameters": {
+		"basics": [
+			{}
+		],
+		"steps": [
+			{
+				"name": "suriyaConfig",
+				"label": "Inferncing settings",
+				"subLabel": {
+					"preValidation": "Configure the infrastructure settings",
+					"postValidation": "Done"
+				},
+				"bladeTitle": "Inferncing settings",
+				"elements": [
+					{
+						"name": "Prefix",
+						"type": "Microsoft.Common.TextBox",
+						"label": "Prefix",
+						"placeholder": "",
+						"toolTip": "Use only allowed characters and length less than 6",
+						"constraints": {
+							"required": true,
+							"regex": "^[a-z0-9A-Z]{1,5}$",
+							"validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+						},
+						"visible": true
+					},
+					{
+						"name": "Task",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Task",
+						"placeholder": "",
+						"defaultValue": "Summarization",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "Summarization",
+									"value": "Summarization"
+								},
+								{
+									"label": "Text Classification",
+									"value": "Text"
+								},
+								{
+									"label": "Echo",
+									"value": "Echo"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "Acceleration",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Task",
+						"placeholder": "",
+						"defaultValue": "Optimized",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "Optimized",
+									"value": "Optimized"
+								},
+								{
+									"label": "Quantized",
+									"value": "Quantized"
+								},
+								{
+									"label": "Optimized + Quantized",
+									"value": "OptimizedQuantized"
+								},
+								{
+									"label": "None",
+									"value": "None"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "Region",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Region",
+						"placeholder": "",
+						"defaultValue": "West US",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "East US",
+									"value": "eastus"
+								},
+								{
+									"label": "West US",
+									"value": "westus"
+								},
+								{
+									"label": "North Central US",
+									"value": "northcentralus"
+								},
+								{
+									"label": "South Central US",
+									"value": "southcentralus"
+								},
+								{
+									"label": "West Europe",
+									"value": "westeurope"
+								},
+								{
+									"label": "North Europe",
+									"value": "northeurope"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "scaling",
+						"type": "Microsoft.Common.OptionsGroup",
+						"label": "Scaling",
+						"defaultValue": "AutoScale",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "AutoScale",
+									"value": "AutoScale"
+								},
+								{
+									"label": "Manual",
+									"value": "Manual"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "scalecount",
+						"type": "Microsoft.Common.EditableGrid",
+						"ariaLabel": "Enter information per person",
+						"label": "Scale Count",
+						"constraints": {
+							"width": "Full",
+							"rows": {
+								"count": {
+									"min": 1,
+									"max": 1
+								}
+							},
+							"columns": [
+								{
+									"id": "minimumInstances",
+									"header": "Minimum Instance Count",
+									"width": "1fr",
+									"element": {
+										"type": "Microsoft.Common.TextBox",
+										"placeholder": "Minimum Instance",
+										"constraints": {
+											"required": true,
+											"validations": [
+												{
+													"regex": "^[0-9]$",
+													"message": "Only Numeric characters are allowed."
+												}
+											]
+										}
+									}
+								},
+								{
+									"id": "maximumInstances",
+									"header": "Maximum Instance Count",
+									"width": "1fr",
+									"element": {
+										"type": "Microsoft.Common.TextBox",
+										"placeholder": "Maximum Instance",
+										"constraints": {
+											"required": true,
+											"validations": [
+												{
+													"regex": "^[0-9]$",
+													"message": "Only Numeric characters are allowed."
+												}
+											]
+										}
+									}
+								},
+								{
+									"id": "computeType",
+									"header": "Compute Type",
+									"width": "1fr",
+									"element": {
+										"name": "computeType",
+										"type": "Microsoft.Common.OptionsGroup",
+										"placeholder": "compute Type",
+										"constraints": {
+											"allowedValues": [
+												{
+													"label": "GPU",
+													"value": "gpu"
+												},
+												{
+													"label": "CPU",
+													"value": "cpu"
+												}
+											],
+											"required": true
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "rps",
+						"type": "Microsoft.Common.TextBox",
+						"label": "Scale Target Request Per Second",
+						"placeholder": "",
+						"constraints": {
+							"required": true,
+							"regex": "^[0-9]{1,5}$",
+							"validationMessage": "Only Numeric characters are allowed, and the value must be 1-30 characters long."
+						},
+						"visible": true
+					},
+					{
+						"name": "privatelink",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Use Azure Private Link",
+						"visible": true
+					}
+				]
+			}
+		],
+		"outputs": {
+			"prefix": "[steps('suriyaConfig').Prefix]",
+			"location": "[steps('suriyaConfig').Region]"
+		}
+	}
+}

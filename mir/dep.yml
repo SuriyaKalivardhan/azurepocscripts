@@ -1,10 +1,10 @@
 $schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
 private_network_connection: true
-model: azureml:suriyakwcpr0ws0-model1:1
+model: azureml:suriyakeepr0ws0-model1:1
 environment:
-  name: suriyakwcpr0-env2
+  name: suriyakeepr0-env2
   version: 1
-  image: suriyakwcpr0acr.azurecr.io/suriyakalivardhan/simpleinferencer:v1
+  image: suriyakeepr0acr.azurecr.io/suriyakalivardhan/simpleinferencer:v1
   inference_config:
     liveness_route:
       port: 5001

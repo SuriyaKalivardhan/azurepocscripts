@@ -1,6 +1,6 @@
 #!/bin/bash
 
-location='westcentralus'
+location='eastus2euap'
 subscription=''
 resourcegroup=''
 workspace=''
@@ -51,9 +51,9 @@ az acr create -n $registryname --sku premium
 acrid=$(az acr show -n $registryname --query id -o tsv)
 
 appinlocation=$location
-if [ $appinlocation == 'westcentralus' ]; then
+if [ $appinlocation == 'eastus2euap' ]; then
     echo "Using SouthcentralUS for AppInsight resources"
-    appinlocation='southcentralus'
+    appinlocation='eastus'
 fi
 
 az monitor log-analytics workspace create -n $logwsname -l $appinlocation

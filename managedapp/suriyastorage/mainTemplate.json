@@ -33,6 +33,10 @@
       "storageEndpoint": {
         "type": "string",
         "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('suriyaAccountName')), '2019-06-01').primaryEndpoints.blob]"
+      },
+      "storageEndpoint": {
+        "type": "string",
+        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('suriyaAccountName')), '2019-06-01').primaryEndpoints.blob]"
       }
     }
   }
