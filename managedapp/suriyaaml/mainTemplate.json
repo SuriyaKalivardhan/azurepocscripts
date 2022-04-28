@@ -14,8 +14,8 @@
 			"defaultValue": "[resourceGroup().location]"
 		},
 		"utcValue": {
-		  "type": "string",
-		  "defaultValue": "[utcNow()]"
+			"type": "string",
+			"defaultValue": "[utcNow()]"
 		}
 	},
 	"variables": {
@@ -25,10 +25,8 @@
 		"registryName": "[variables('resourceName')]",
 		"loganalyticsName": "[variables('resourceName')]",
 		"appInsightsName": "[variables('resourceName')]",
-		"workspaceName":  "[variables('resourceName')]",
-		"environmentName": "[concat(variables('resourceName'), 'env1')]",		
-		"modelName": "[concat(variables('resourceName'), 'model1')]",	
-		"endpointName": "[concat(variables('resourceName'), 'ep1')]",	
+		"workspaceName": "[variables('resourceName')]",
+		"endpointName": "[concat(variables('resourceName'), 'ep1')]",
 		"deploymentName": "[concat(variables('resourceName'), 'dep1')]"
 	},
 	"resources": [
@@ -103,19 +101,6 @@
 			}
 		},
 		{
-			"type": "Microsoft.ContainerRegistry/registries",
-			"apiVersion": "2021-12-01-preview",
-			"name": "[variables('registryName')]",
-			"location": "[parameters('location')]",
-			"sku": {
-				"name": "Premium",
-				"tier": "Premium"
-			},
-			"properties": {
-				"networkRuleBypassOptions": "AzureServices"
-			}
-		},
-		{
 			"type": "Microsoft.OperationalInsights/workspaces",
 			"apiVersion": "2021-12-01-preview",
 			"name": "[variables('loganalyticsName')]",
@@ -159,96 +144,13 @@
 				"hbiWorkspace": false,
 				"storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
 				"keyVault": "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultAccountName'))]",
-				"applicationInsights": "[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
-				"containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', variables('registryName'))]"
+				"applicationInsights": "[resourceId('microsoft.insights/components', variables('appInsightsName'))]"
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
 				"[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultAccountName'))]",
-				"[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
-				"[resourceId('Microsoft.ContainerRegistry/registries', variables('registryName'))]"
+				"[resourceId('microsoft.insights/components', variables('appInsightsName'))]"
 			]
-		},
-		{
-			"type": "Microsoft.MachineLearningServices/workspaces/environments/versions",
-			"apiVersion": "2021-03-01-preview",
-			"name": "[concat(variables('workspaceName'), '/', variables('environmentName'), '/1')]",
-			"properties": {
-				"tags": {},
-				"properties": {},
-				"isAnonymous": false,
-				"docker": {
-					"platform": {
-						"operatingSystemType": "Linux"
-					},
-					"dockerSpecificationType": "Image",
-					"dockerImageUri": "docker.io/suriyakalivardhan/simpleinferencer:v1"
-				},
-				"inferenceContainerProperties": {
-					"livenessRoute": {
-						"path": "/healthcheck",
-						"port": 5001
-					},
-					"readinessRoute": {
-						"path": "/healthcheck",
-						"port": 5001
-					},
-					"scoringRoute": {
-						"path": "/inference",
-						"port": 5001
-					}
-				}
-			},
-			"dependsOn": [
-				"[resourceId('Microsoft.MachineLearningServices/workspaces', variables('workspaceName'))]"
-			]
-		},
-		{
-			"type": "Microsoft.Resources/deploymentScripts",
-			"apiVersion": "2020-10-01",
-			"name": "[variables('resourceName')]",
-			"location": "[parameters('location')]",
-			"kind": "AzureCLI",
-			"properties": {
-				"environmentVariables": [
-					{
-					  "name": "AZURE_STORAGE_ACCOUNT",
-					  "value": "[variables('storageAccountName')]"
-					},
-					{
-					  "name": "AZURE_STORAGE_KEY",
-					  "secureValue": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-04-01').keys[0].value]"
-					},
-					{
-					  "name": "CONTAINERNAME",
-					  "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/datastores', variables('workspaceName'), 'workspaceblobstore'),'2021-10-01').containerName]"
-					}
-				  ],
-				"forceUpdateTag": "[parameters('utcValue')]",
-				"azCliVersion": "2.35.0",
-				"timeout": "PT30M",
-				"scriptContent": "az storage blob copy start --destination-container $CONTAINERNAME --destination-blob modelblob --source-uri https://github.com/SuriyaKalivardhan/azurepocscripts/blob/master/mir/privatedeployment.sh",
-				"retentionInterval": "P1D"
-			},
-			"dependsOn": [
-				"[resourceId('Microsoft.MachineLearningServices/workspaces', variables('workspaceName'))]"
-			]
-		},
-		{
-			"type": "Microsoft.MachineLearningServices/workspaces/models/versions",
-			"apiVersion": "2021-03-01-preview",
-			"name": "[concat(variables('workspaceName'), '/', variables('modelName'), '/1')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deploymentScripts', variables('resourceName'))]"
-			],
-			"properties": {
-				"tags": {},
-				"properties": {},
-				"isAnonymous": false,
-				"datastoreId": "[resourceId('Microsoft.MachineLearningServices/workspaces/datastores', variables('workspaceName'), 'workspaceblobstore')]",
-				"path": "modelblob",
-				"flavors": {}
-			}
 		},
 		{
 			"type": "Microsoft.MachineLearningServices/workspaces/onlineEndpoints",
@@ -265,73 +167,101 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.MachineLearningServices/workspaces', variables('workspaceName'))]"
 			]
-    	},
+		},
 		{
 			"type": "Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments",
-			"apiVersion": "2021-03-01-preview",
+			"apiVersion": "2021-10-01",
 			"name": "[concat(variables('workspaceName'), '/', variables('endpointName'), '/', variables('deploymentName'))]",
 			"location": "[parameters('location')]",
 			"kind": "Managed",
 			"properties": {
-				"model": {
-					"referenceType": "Id",
-					"assetId": "[resourceId('Microsoft.MachineLearningServices/workspaces/models/versions', variables('workspaceName'), variables('modelName'), '1')]"
-				},
-				"environmentId": "[resourceId('Microsoft.MachineLearningServices/workspaces/environments/versions', variables('workspaceName'), variables('environmentName'), '1')]",
-				"environmentVariables": {},
+				"model": "azureml://feeds/UnsecureTest-testFeed/models/image-classification-deit-base-distilled-patch16-224/versions/6",
 				"scaleSettings": {
-					"minInstances": "[parameters('minimumInstances')]",
-					"maxInstances": "[parameters('minimumInstances')]",
-					"scaleType": "Manual",
-					"instanceCount": "[parameters('minimumInstances')]"
-				},
-				"requestSettings": {
-					"requestTimeout": "PT5S",
-					"maxConcurrentRequestsPerInstance": 1
-				},
-				"appInsightsEnabled": false,
-				"livenessProbe": {
-					"failureThreshold": 30,
-					"successThreshold": 1,
-					"timeout": "PT2S",
-					"period": "PT10S",
-					"initialDelay": "PT10S"
-				},
+					"minInstances": 1,
+					"pollingInterval": "PT1M",
+					"scaleType": "TargetUtilization",
+					"targetUtilizationPercentage": 50
+				  },
 				"endpointComputeType": "Managed",
-				"instanceType": "Standard_F2s_v2",
-				"readinessProbe": {
-					"failureThreshold": 30,
-					"successThreshold": 1,
-					"timeout": "PT2S",
-					"period": "PT10S",
-					"initialDelay": "PT10S"
-				}
+				"instanceType": "Standard_F8s_v2"
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints', variables('workspaceName'), variables('endpointName'))]",
-				"[resourceId('Microsoft.MachineLearningServices/workspaces/models/versions', variables('workspaceName'), variables('modelName'), '1')]",
-				"[resourceId('Microsoft.MachineLearningServices/workspaces/environments/versions', variables('workspaceName'), variables('environmentName'), '1')]"
+				"[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints', variables('workspaceName'), variables('endpointName'))]"
 			]
 		},
 		{
-            "apiVersion": "2020-06-01",
-            "type": "Microsoft.Resources/deployments",
-            "name": "UpdateTraffic",
-            "dependsOn": [
-				"[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]"
-            ],
+            "name": "[variables('resourceName')]",
+            "type": "Microsoft.Insights/autoscaleSettings",
+			"apiVersion": "2015-04-01",
+			"location": "[parameters('location')]",
+            "tags": {},
             "properties": {
-                "mode": "Incremental",
-                "parameters": {},
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.1",
-                    "parameters": {},
-                    "variables": {},
-                    "resources": [
-                        {
+                "name": "[variables('resourceName')]",
+                "enabled": true,
+                "predictiveAutoscalePolicy": {
+                    "scaleMode": "Disabled",
+                    "scaleLookAheadTime": null
+                },
+                "targetResourceUri": "[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]",
+                "profiles": [
+                    {
+                        "name": "CPU Memory Utilization",
+                        "capacity": {
+                            "minimum": "1",
+                            "maximum": "20",
+                            "default": "1"
+                        },
+                        "rules": [
+                            {
+                                "scaleAction": {
+                                    "direction": "Increase",
+                                    "type": "ChangeCount",
+                                    "value": "1",
+                                    "cooldown": "PT5M"
+                                },
+                                "metricTrigger": {
+                                    "metricName": "CpuMemoryUtilizationPercentage",
+                                    "metricNamespace": "microsoft.machinelearningservices/workspaces/onlineendpoints/deployments",
+                                    "metricResourceUri": "[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]",
+                                    "operator": "GreaterThan",
+                                    "statistic": "Average",
+                                    "threshold": 70,
+                                    "timeAggregation": "Average",
+                                    "timeGrain": "PT1M",
+                                    "timeWindow": "PT10M",
+                                    "Dimensions": [],
+                                    "dividePerInstance": false
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "notifications": [],
+                "targetResourceLocation": "eastus"
+            },
+			"dependsOn": [
+				"[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]"
+			]
+		},
+		{
+			"apiVersion": "2020-06-01",
+			"type": "Microsoft.Resources/deployments",
+			"name": "UpdateTraffic",
+			"dependsOn": [
+				"[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"parameters": {},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.1",
+					"parameters": {},
+					"variables": {},
+					"resources": [
+						{
 							"type": "Microsoft.MachineLearningServices/workspaces/onlineEndpoints",
-							"apiVersion": "2021-03-01-preview",
+							"apiVersion": "2021-10-01",
 							"name": "[concat(variables('workspaceName'), '/', variables('endpointName'))]",
 							"location": "[parameters('location')]",
 							"kind": "Managed",
@@ -341,22 +271,22 @@
 							"properties": {
 								"authMode": "Key",
 								"traffic": {
-									"[variables('deploymentName')]" : 100
+									"[variables('deploymentName')]": 100
 								}
 							}
 						}
-                    ],
-                    "outputs": {
+					],
+					"outputs": {
 						"scoringUri": {
 							"type": "string",
 							"value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints', variables('workspaceName'), variables('endpointName')),'2021-10-01').scoringuri]"
-						  }
+						}
 					}
-                }
-            }
-        }
+				}
+			}
+		}
 	],
-    "outputs": {
+	"outputs": {
 		"inferencingEndPoint": {
 			"type": "string",
 			"value": "[reference('UpdateTraffic').outputs['scoringUri'].value]"
@@ -365,5 +295,5 @@
 			"type": "string",
 			"value": "[listKeys(resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints', variables('workspaceName'), variables('endpointName')),'2021-10-01').primaryKey]"
 		}
-    }
+	}
 }
