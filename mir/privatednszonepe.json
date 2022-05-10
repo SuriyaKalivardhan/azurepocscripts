@@ -1,0 +1,121 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+	"contentVersion": "1.0.0.0",
+	"parameters": {},
+	"resources": [
+		{
+			"name": "privatelink.api.azureml.ms",
+			"type": "Microsoft.Network/privateDnsZones",
+			"apiVersion": "2018-09-01",
+			"location": "global",
+			"dependsOn": null,
+			"tags": {
+				"Subscription": "9ce6e6d6-c642-4e1c-9ed1-67ce5add3956",
+				"ResourceGroup": "comacginrg",
+				"ResourceType": "Workspaces",
+				"ResourceName": "foow2",
+				"BillingResourceArmId": "/subscriptions/9ce6e6d6-c642-4e1c-9ed1-67ce5add3956/resourceGroups/comacginrg/providers/Microsoft.MachineLearningServices/workspaces/foow2",
+				"CreatedBy": "AMLNetworkManagement"
+			},
+			"sku": null,
+			"plan": null,
+			"identity": null,
+			"zones": null,
+			"properties": {}
+		},
+		{
+			"name": "[concat('privatelink.api.azureml.ms/', 'amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl')]",
+			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+			"apiVersion": "2018-09-01",
+			"location": "global",
+			"dependsOn": [
+				"[concat('Microsoft.Network/privateDnsZones/', 'privatelink.api.azureml.ms')]",
+				"[concat('Microsoft.Network/virtualNetworks/', 'delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl')]"
+			],
+			"tags": {
+				"Subscription": "9ce6e6d6-c642-4e1c-9ed1-67ce5add3956",
+				"ResourceGroup": "comacginrg",
+				"ResourceType": "Workspaces",
+				"ResourceName": "foow2",
+				"BillingResourceArmId": "/subscriptions/9ce6e6d6-c642-4e1c-9ed1-67ce5add3956/resourceGroups/comacginrg/providers/Microsoft.MachineLearningServices/workspaces/foow2",
+				"CreatedBy": "AMLNetworkManagement"
+			},
+			"sku": null,
+			"plan": null,
+			"identity": null,
+			"zones": null,
+			"properties": {
+				"registrationEnabled": false,
+				"virtualNetwork": {
+					"id": "/subscriptions/e54229a3-0e6f-40b3-82a1-ae9cda6e2b81/resourceGroups/suriyakhoborg/providers/Microsoft.Network/virtualNetworks/delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl"
+				}
+			}
+		},
+		{
+			"name": "pe_amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl",
+			"type": "Microsoft.Network/privateEndpoints",
+			"apiVersion": "2020-03-01",
+			"location": "eastus",
+			"dependsOn": [
+				"/subscriptions/e54229a3-0e6f-40b3-82a1-ae9cda6e2b81/resourceGroups/suriyakhoborg/providers/Microsoft.Network/VirtualNetworks/delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl/subnets/delta10"
+			],
+			"tags": {
+				"Subscription": "9ce6e6d6-c642-4e1c-9ed1-67ce5add3956",
+				"ResourceGroup": "comacginrg",
+				"ResourceType": "Workspaces",
+				"ResourceName": "foow2",
+				"BillingResourceArmId": "/subscriptions/9ce6e6d6-c642-4e1c-9ed1-67ce5add3956/resourceGroups/comacginrg/providers/Microsoft.MachineLearningServices/workspaces/foow2",
+				"CreatedBy": "AMLNetworkManagement"
+			},
+			"sku": null,
+			"plan": null,
+			"identity": null,
+			"zones": null,
+			"properties": {
+				"privateLinkServiceConnections": null,
+				"manualPrivateLinkServiceConnections": [
+					{
+						"name": "pe_amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl",
+						"properties": {
+							"privateLinkServiceId": "/subscriptions/e54229a3-0e6f-40b3-82a1-ae9cda6e2b81/resourceGroups/suriyakmanagednetwork/providers/Microsoft.MachineLearningServices/workspaces/suriyaktestws",
+							"groupIds": [
+								"amlworkspace"
+							],
+							"requestMessage": "Egress for Microsoft.MachineLearningServices/workspaces/onlineEndpoints",
+							"privateLinkServiceConnectionState": null
+						}
+					}
+				],
+				"subnet": {
+					"id": "/subscriptions/e54229a3-0e6f-40b3-82a1-ae9cda6e2b81/resourceGroups/suriyakhoborg/providers/Microsoft.Network/VirtualNetworks/delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl/subnets/delta10"
+				},
+				"customDnsConfigs": null
+			}
+		},
+		{
+			"name": "[concat('pe_amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl/', 'zg_amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl')]",
+			"type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+			"apiVersion": "2020-03-01",
+			"location": "eastus",
+			"dependsOn": [
+				"[concat('Microsoft.Network/privateEndpoints/', 'pe_amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl')]",
+				"[concat('Microsoft.Network/privateDnsZones/', 'privatelink.api.azureml.ms')]"
+			],
+			"tags": null,
+			"sku": null,
+			"plan": null,
+			"identity": null,
+			"zones": null,
+			"properties": {
+				"privateDnsZoneConfigs": [
+					{
+						"name": "pe_amlworkspace_delta10_mzrjndy3ogqtndg0ny00nje2lwfkzditotrinzrmztc4ota3jdljztzl",
+						"properties": {
+							"privateDnsZoneId": "/subscriptions/e54229a3-0e6f-40b3-82a1-ae9cda6e2b81/resourceGroups/suriyakhoborg/providers/Microsoft.Network/privateDnsZones/privatelink.api.azureml.ms"
+						}
+					}
+				]
+			}
+		}
+	]
+}
