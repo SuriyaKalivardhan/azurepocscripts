@@ -1,0 +1,270 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"prefix": {
+			"type": "string"
+		},
+		"minimumInstances": {
+			"type": "int",
+			"defaultValue": 1
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "[resourceGroup().location]"
+		},
+		"utcValue": {
+		  "type": "string",
+		  "defaultValue": "[utcNow()]"
+		}
+	},
+	"variables": {
+		"resourceName": "[concat(parameters('prefix'), uniqueString(resourceGroup().id))]",
+		"storageAccountName": "[variables('resourceName')]",
+		"keyvaultAccountName": "[variables('resourceName')]",
+		"registryName": "[variables('resourceName')]",
+		"loganalyticsName": "[variables('resourceName')]",
+		"appInsightsName": "[variables('resourceName')]",
+		"workspaceName":  "[variables('resourceName')]",
+		"environmentName": "[concat(variables('resourceName'), 'env1')]",		
+		"modelName": "[concat(variables('resourceName'), 'model1')]",	
+		"endpointName": "[concat(variables('resourceName'), 'ep999')]",	
+		"deploymentName": "[concat(variables('resourceName'), 'dep1')]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Storage/storageAccounts",
+			"apiVersion": "2021-09-01",
+			"name": "[variables('storageAccountName')]",
+			"location": "[parameters('location')]",
+			"sku": {
+				"name": "Standard_RAGRS",
+				"tier": "Standard"
+			},
+			"kind": "StorageV2",
+			"properties": {
+				"minimumTlsVersion": "TLS1_0",
+				"allowBlobPublicAccess": true,
+				"networkAcls": {
+					"bypass": "AzureServices",
+					"virtualNetworkRules": [],
+					"ipRules": [],
+					"defaultAction": "Allow"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.KeyVault/vaults",
+			"apiVersion": "2021-11-01-preview",
+			"name": "[variables('keyvaultAccountName')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"sku": {
+					"family": "A",
+					"name": "standard"
+				},
+				"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+				"accessPolicies": [
+					{
+						"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+						"objectId": "84adbd6c-f314-4959-a642-3be28bea77be",
+						"permissions": {
+							"keys": [
+								"all"
+							],
+							"secrets": [
+								"all"
+							],
+							"certificates": [
+								"all"
+							],
+							"storage": [
+								"all"
+							]
+						}
+					},
+					{
+						"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+						"objectId": "0de8b33b-a949-470e-974b-3ae925fba3ff",
+						"permissions": {
+							"keys": [
+								"all"
+							],
+							"secrets": [
+								"all"
+							],
+							"certificates": [
+								"all"
+							],
+							"storage": []
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.ContainerRegistry/registries",
+			"apiVersion": "2021-12-01-preview",
+			"name": "[variables('registryName')]",
+			"location": "[parameters('location')]",
+			"sku": {
+				"name": "Premium",
+				"tier": "Premium"
+			},
+			"properties": {
+				"networkRuleBypassOptions": "AzureServices"
+			}
+		},
+		{
+			"type": "Microsoft.OperationalInsights/workspaces",
+			"apiVersion": "2021-12-01-preview",
+			"name": "[variables('loganalyticsName')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"sku": {
+					"name": "PerGB2018"
+				}
+			}
+		},
+		{
+			"type": "microsoft.insights/components",
+			"apiVersion": "2020-02-02",
+			"name": "[variables('appInsightsName')]",
+			"location": "[parameters('location')]",
+			"kind": "web",
+			"properties": {
+				"Application_Type": "web",
+				"WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('loganalyticsName'))]",
+				"IngestionMode": "LogAnalytics"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.OperationalInsights/workspaces', variables('loganalyticsName'))]"
+			]
+		},
+		{
+			"type": "Microsoft.MachineLearningServices/workspaces",
+			"apiVersion": "2022-01-01-preview",
+			"name": "[variables('workspaceName')]",
+			"location": "[parameters('location')]",
+			"sku": {
+				"name": "Basic",
+				"tier": "Basic"
+			},
+			"identity": {
+				"type": "SystemAssigned"
+			},
+			"properties": {
+				"friendlyName": "[variables('workspaceName')]",
+				"description": "[variables('workspaceName')]",
+				"hbiWorkspace": false,
+				"storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+				"keyVault": "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultAccountName'))]",
+				"applicationInsights": "[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
+				"containerRegistry": "[resourceId('Microsoft.ContainerRegistry/registries', variables('registryName'))]"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+				"[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultAccountName'))]",
+				"[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
+				"[resourceId('Microsoft.ContainerRegistry/registries', variables('registryName'))]"
+			]
+		},
+		{
+			"type": "Microsoft.MachineLearningServices/workspaces/environments/versions",
+			"apiVersion": "2021-03-01-preview",
+			"name": "[concat(variables('workspaceName'), '/', variables('environmentName'), '/1')]",
+			"properties": {
+				"tags": {},
+				"properties": {},
+				"isAnonymous": false,
+				"docker": {
+					"platform": {
+						"operatingSystemType": "Linux"
+					},
+					"dockerSpecificationType": "Image",
+					"dockerImageUri": "docker.io/suriyakalivardhan/simpleinferencer:v1"
+				},
+				"inferenceContainerProperties": {
+					"livenessRoute": {
+						"path": "/healthcheck",
+						"port": 5001
+					},
+					"readinessRoute": {
+						"path": "/healthcheck",
+						"port": 5001
+					},
+					"scoringRoute": {
+						"path": "/inference",
+						"port": 5001
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.MachineLearningServices/workspaces', variables('workspaceName'))]"
+			]
+		},
+		{
+			"type": "Microsoft.Resources/deploymentScripts",
+			"apiVersion": "2020-10-01",
+			"name": "[variables('resourceName')]",
+			"location": "[parameters('location')]",
+			"kind": "AzureCLI",
+			"properties": {
+				"environmentVariables": [
+					{
+					  "name": "AZURE_STORAGE_ACCOUNT",
+					  "value": "[variables('storageAccountName')]"
+					},
+					{
+					  "name": "AZURE_STORAGE_KEY",
+					  "secureValue": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-04-01').keys[0].value]"
+					},
+					{
+					  "name": "CONTAINERNAME",
+					  "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/datastores', variables('workspaceName'), 'workspaceblobstore'),'2021-10-01').containerName]"
+					}
+				  ],
+				"forceUpdateTag": "[parameters('utcValue')]",
+				"azCliVersion": "2.35.0",
+				"timeout": "PT30M",
+				"scriptContent": "az storage blob copy start --destination-container $CONTAINERNAME --destination-blob modelblob --source-uri https://github.com/SuriyaKalivardhan/azurepocscripts/blob/master/mir/privatedeployment.sh",
+				"retentionInterval": "P1D"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.MachineLearningServices/workspaces', variables('workspaceName'))]"
+			]
+		},
+		{
+			"type": "Microsoft.MachineLearningServices/workspaces/models/versions",
+			"apiVersion": "2021-03-01-preview",
+			"name": "[concat(variables('workspaceName'), '/', variables('modelName'), '/1')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deploymentScripts', variables('resourceName'))]"
+			],
+			"properties": {
+				"tags": {},
+				"properties": {},
+				"isAnonymous": false,
+				"datastoreId": "[resourceId('Microsoft.MachineLearningServices/workspaces/datastores', variables('workspaceName'), 'workspaceblobstore')]",
+				"path": "modelblob",
+				"flavors": {}
+			}
+		},
+		{
+			"type": "Microsoft.MachineLearningServices/workspaces/onlineEndpoints",
+			"apiVersion": "2021-03-01-preview",
+			"name": "[concat(variables('workspaceName'), '/', variables('endpointName'))]",
+			"location": "[parameters('location')]",
+			"kind": "Managed",
+			"identity": {
+				"type": "SystemAssigned"
+			},
+			"properties": {
+				"authMode": "Key"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.MachineLearningServices/workspaces', variables('workspaceName'))]"
+			]
+    	}
+	]
+}

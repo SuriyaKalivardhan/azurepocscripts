@@ -1,0 +1,87 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"prefix": {
+			"type": "string"
+		},
+		"minimumInstances": {
+			"type": "int",
+			"defaultValue": 1
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "[resourceGroup().location]"
+		},
+		"utcValue": {
+		  "type": "string",
+		  "defaultValue": "[utcNow()]"
+		}
+	},
+	"variables": {
+		"resourceName": "[concat(parameters('prefix'), uniqueString(resourceGroup().id))]",
+		"storageAccountName": "[variables('resourceName')]",
+		"keyvaultAccountName": "[variables('resourceName')]",
+		"registryName": "[variables('resourceName')]",
+		"loganalyticsName": "[variables('resourceName')]",
+		"appInsightsName": "[variables('resourceName')]",
+		"workspaceName":  "[variables('resourceName')]",
+		"environmentName": "[concat(variables('resourceName'), 'env1')]",		
+		"modelName": "[concat(variables('resourceName'), 'model1')]",	
+		"endpointName": "[concat(variables('resourceName'), 'ep999')]",	
+		"deploymentName": "[concat(variables('resourceName'), 'dep1')]"
+	},
+	"resources": [
+		{
+            "name": "[variables('resourceName')]",
+            "type": "Microsoft.Insights/autoscaleSettings",
+			"apiVersion": "2015-04-01",
+			"location": "[parameters('location')]",
+            "tags": {},
+            "properties": {
+                "name": "[variables('resourceName')]",
+                "enabled": true,
+                "predictiveAutoscalePolicy": {
+                    "scaleMode": "Disabled",
+                    "scaleLookAheadTime": null
+                },
+                "targetResourceUri": "[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]",
+                "profiles": [
+                    {
+                        "name": "CPU Memory Utilization",
+                        "capacity": {
+                            "minimum": "1",
+                            "maximum": "20",
+                            "default": "1"
+                        },
+                        "rules": [
+                            {
+                                "scaleAction": {
+                                    "direction": "Increase",
+                                    "type": "ChangeCount",
+                                    "value": "1",
+                                    "cooldown": "PT5M"
+                                },
+                                "metricTrigger": {
+                                    "metricName": "CpuMemoryUtilizationPercentage",
+                                    "metricNamespace": "microsoft.machinelearningservices/workspaces/onlineendpoints/deployments",
+                                    "metricResourceUri": "[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]",
+                                    "operator": "GreaterThan",
+                                    "statistic": "Average",
+                                    "threshold": 70,
+                                    "timeAggregation": "Average",
+                                    "timeGrain": "PT1M",
+                                    "timeWindow": "PT10M",
+                                    "Dimensions": [],
+                                    "dividePerInstance": false
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "notifications": [],
+                "targetResourceLocation": "eastus"
+            }
+        }
+	]
+}

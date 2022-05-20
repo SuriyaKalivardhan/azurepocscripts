@@ -1,0 +1,134 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+	"handler": "Microsoft.Azure.CreateUIDef",
+	"version": "0.1.2-preview",
+	"parameters": {
+		"basics": [
+			{}
+		],
+		"steps": [
+			{
+				"name": "suriyaConfig",
+				"label": "Inferncing settings",
+				"subLabel": {
+					"preValidation": "Configure the infrastructure settings",
+					"postValidation": "Done"
+				},
+				"bladeTitle": "Inferncing settings",
+				"elements": [
+					{
+						"name": "Prefix",
+						"type": "Microsoft.Common.TextBox",
+						"label": "Prefix",
+						"placeholder": "",
+						"toolTip": "Use only allowed characters and length less than 6",
+						"constraints": {
+							"required": true,
+							"regex": "^[a-z0-9A-Z]{1,5}$",
+							"validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+						},
+						"visible": true
+					},
+					{
+						"name": "Task",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Task",
+						"placeholder": "",
+						"defaultValue": "Summarization",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "Summarization",
+									"value": "Summarization"
+								},
+								{
+									"label": "Text Classification",
+									"value": "Text"
+								},
+								{
+									"label": "Echo",
+									"value": "Echo"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "Acceleration",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Task",
+						"placeholder": "",
+						"defaultValue": "Optimized",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "Optimized",
+									"value": "Optimized"
+								},
+								{
+									"label": "Quantized",
+									"value": "Quantized"
+								},
+								{
+									"label": "Optimized + Quantized",
+									"value": "OptimizedQuantized"
+								},
+								{
+									"label": "None",
+									"value": "None"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "Region",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Region",
+						"placeholder": "",
+						"defaultValue": "East US",
+						"toolTip": "",
+						"constraints": {
+							"allowedValues": [
+								{
+									"label": "East US",
+									"value": "eastus"
+								},
+								{
+									"label": "West US",
+									"value": "westus"
+								},
+								{
+									"label": "North Central US",
+									"value": "northcentralus"
+								},
+								{
+									"label": "South Central US",
+									"value": "southcentralus"
+								},
+								{
+									"label": "West Europe",
+									"value": "westeurope"
+								},
+								{
+									"label": "North Europe",
+									"value": "northeurope"
+								}
+							],
+							"required": true
+						},
+						"visible": true
+					}
+				]
+			}
+		],
+		"outputs": {
+			"prefix": "[steps('suriyaConfig').Prefix]",
+			"location": "[steps('suriyaConfig').Region]"
+		}
+	}
+}

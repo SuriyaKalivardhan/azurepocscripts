@@ -240,6 +240,59 @@
                 "notifications": [],
                 "targetResourceLocation": "eastus"
             }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+			"name": "pid-cb8989f9-840e-497b-adbd-7524c33af83c-partnercenter",
+            "apiVersion": "2020-06-01",
+            "name": "UpdateTraffic",
+            "dependsOn": [
+                "[resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints/deployments', variables('workspaceName'), variables('endpointName'), variables('deploymentName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {},
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.1",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.MachineLearningServices/workspaces/onlineEndpoints",
+                            "apiVersion": "2021-10-01",
+                            "name": "[concat(variables('workspaceName'), '/', variables('endpointName'))]",
+                            "location": "[parameters('location')]",
+                            "kind": "Managed",
+                            "identity": {
+                                "type": "SystemAssigned"
+                            },
+                            "properties": {
+                                "authMode": "Key",
+                                "traffic": {
+                                    "[variables('deploymentName')]": 100
+                                }
+                            }
+                        }
+                    ],
+                    "outputs": {
+                        "scoringUri": {
+                            "type": "string",
+                            "value": "[reference(resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints', variables('workspaceName'), variables('endpointName')),'2021-10-01').scoringuri]"
+                        }
+                    }
+                }
+            }
         }
-    ]
+    ],
+    "outputs": {
+        "inferencingEndPoint": {
+            "type": "String",
+            "value": "[reference('UpdateTraffic').outputs['scoringUri'].value]"
+        },
+        "endpointKey": {
+            "type": "String",
+            "value": "[listKeys(resourceId('Microsoft.MachineLearningServices/workspaces/onlineEndpoints', variables('workspaceName'), variables('endpointName')),'2021-10-01').primaryKey]"
+        }
+    }
 }
