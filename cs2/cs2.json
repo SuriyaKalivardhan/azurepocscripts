@@ -2,12 +2,12 @@
 	"location": "eastus2euap",
 	"properties": {
 		"elasticProfile": {
-			"desiredCount": 2
+			"desiredCount": 1
 		},
 		"containerGroupProfiles": [
 			{
 				"resource": {
-					"id": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakcs2poc/providers/Microsoft.ContainerInstance/containerGroupProfiles/suriyakcs2grouprofile2"
+					"id": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakcs2poc/providers/Microsoft.ContainerInstance/containerGroupProfiles/suriyakcs2grouprofile4"
 				}
 			}
 		]
