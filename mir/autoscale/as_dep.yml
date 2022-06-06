@@ -1,0 +1,18 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+model: azureml:suriyakaspoc0ws0-model1:1
+environment:
+  name: suriyakaspoc0-env0
+  version: 1
+  image: suriyakaspoc0acr.azurecr.io/suriyakalivardhan/simpleinferencer:v1
+  inference_config:
+    liveness_route:
+      port: 5001
+      path: /healthcheck
+    readiness_route:
+      port: 5001
+      path: /healthcheck
+    scoring_route:
+      port: 5001
+      path: /inference
+instance_type: Standard_F2s_v2
+instance_count: 1

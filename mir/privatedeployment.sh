@@ -90,3 +90,10 @@ az network private-dns link vnet create --zone-name privatelink.api.azureml.ms -
 az network private-endpoint dns-zone-group create --endpoint-name $pename  --name myzonegroup --private-dns-zone privatelink.api.azureml.ms --zone-name privatelink.api.azureml.ms
 
 az vm create -n $vmname --image UbuntuLTS --admin-username suriyak --ssh-key-value ~/.ssh/id_rsa.pub --public-ip-sku Standard --nsg "" --subnet $subnetid
+
+export AZURE_ML_CLI_PRIVATE_FEATURES_ENABLED=true
+az ml online-endpoint create -n $epname --auth-mode=key
+az ml online-deployment create -e $epname -n $depname -f dep.yml --all-traffic
+token=$(az ml online-endpoint get-credentials -n $epname --query primaryKey -o tsv)
+
+az vm run-command invoke -n $vmname --command-id RunShellScript --scripts "curl -X POST https://$epname.$location.inference.ml.azure.com/inference -H \"Authorization: Bearer $token\" -d '{\"Id\":\"1234\", \"Type\": \"Infer\", \"Input\":\"InferencingRequest\"}'"

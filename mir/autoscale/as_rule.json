@@ -1,0 +1,158 @@
+{
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "name": "as-rpm",
+        "enabled": true,
+        "predictiveAutoscalePolicy": {
+            "scaleMode": "Disabled",
+            "scaleLookAheadTime": null
+        },
+        "targetResourceUri": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakaspoc0/providers/Microsoft.MachineLearningServices/workspaces/suriyakaspoc0ws0/onlineEndpoints/suriyakaspoc0ws0ep0/deployments/suriyakaspoc0ws0dep0",
+        "profiles": [
+            {
+                "name": "Auto created scale condition",
+                "capacity": {
+                    "minimum": "1",
+                    "maximum": "5",
+                    "default": "2"
+                },
+                "rules": [
+                    {
+                        "scaleAction": {
+                            "direction": "Increase",
+                            "type": "ChangeCount",
+                            "value": "1",
+                            "cooldown": "PT5M"
+                        },
+                        "metricTrigger": {
+                            "metricName": "RequestsPerMinute",
+                            "metricNamespace": "microsoft.machinelearningservices/workspaces/onlineendpoints",
+                            "metricResourceUri": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakaspoc0/providers/Microsoft.MachineLearningServices/workspaces/suriyakaspoc0ws0/onlineEndpoints/suriyakaspoc0ws0ep0",
+                            "operator": "GreaterThan",
+                            "statistic": "Average",
+                            "threshold": 60,
+                            "timeAggregation": "Maximum",
+                            "timeGrain": "PT1M",
+                            "timeWindow": "PT5M",
+                            "Dimensions": [
+                                {
+                                    "DimensionName": "deployment",
+                                    "Operator": "Equals",
+                                    "Values": [
+                                        "suriyakaspoc0ws0dep0"
+                                    ]
+                                },
+                                {
+                                    "DimensionName": "statusCode",
+                                    "Operator": "Equals",
+                                    "Values": [
+                                        "200"
+                                    ]
+                                },
+                                {
+                                    "DimensionName": "statusCodeClass",
+                                    "Operator": "Equals",
+                                    "Values": [
+                                        "2xx"
+                                    ]
+                                }
+                            ],
+                            "dividePerInstance": false
+                        }
+                    },
+                    {
+                        "scaleAction": {
+                            "direction": "Decrease",
+                            "type": "ChangeCount",
+                            "value": "1",
+                            "cooldown": "PT5M"
+                        },
+                        "metricTrigger": {
+                            "metricName": "RequestsPerMinute",
+                            "metricNamespace": "microsoft.machinelearningservices/workspaces/onlineendpoints",
+                            "metricResourceUri": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakaspoc0/providers/Microsoft.MachineLearningServices/workspaces/suriyakaspoc0ws0/onlineEndpoints/suriyakaspoc0ws0ep0",
+                            "operator": "LessThanOrEqual",
+                            "statistic": "Average",
+                            "threshold": 5,
+                            "timeAggregation": "Maximum",
+                            "timeGrain": "PT1M",
+                            "timeWindow": "PT5M",
+                            "Dimensions": [
+                                {
+                                    "DimensionName": "deployment",
+                                    "Operator": "Equals",
+                                    "Values": [
+                                        "suriyakaspoc0ws0dep0"
+                                    ]
+                                },
+                                {
+                                    "DimensionName": "statusCode",
+                                    "Operator": "Equals",
+                                    "Values": [
+                                        "200"
+                                    ]
+                                },
+                                {
+                                    "DimensionName": "statusCodeClass",
+                                    "Operator": "Equals",
+                                    "Values": [
+                                        "2xx"
+                                    ]
+                                }
+                            ],
+                            "dividePerInstance": false
+                        }
+                    },
+                    {
+                        "scaleAction": {
+                            "direction": "Increase",
+                            "type": "ChangeCount",
+                            "value": "1",
+                            "cooldown": "PT5M"
+                        },
+                        "metricTrigger": {
+                            "metricName": "CpuUtilizationPercentage",
+                            "metricNamespace": "microsoft.machinelearningservices/workspaces/onlineendpoints/deployments",
+                            "metricResourceUri": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakaspoc0/providers/Microsoft.MachineLearningServices/workspaces/suriyakaspoc0ws0/onlineEndpoints/suriyakaspoc0ws0ep0/deployments/suriyakaspoc0ws0dep0",
+                            "operator": "GreaterThan",
+                            "statistic": "Max",
+                            "threshold": 5,
+                            "timeAggregation": "Average",
+                            "timeGrain": "PT1M",
+                            "timeWindow": "PT5M",
+                            "Dimensions": [],
+                            "dividePerInstance": false
+                        }
+                    },
+                    {
+                        "scaleAction": {
+                            "direction": "Decrease",
+                            "type": "ChangeCount",
+                            "value": "1",
+                            "cooldown": "PT5M"
+                        },
+                        "metricTrigger": {
+                            "metricName": "CpuUtilizationPercentage",
+                            "metricNamespace": "microsoft.machinelearningservices/workspaces/onlineendpoints/deployments",
+                            "metricResourceUri": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakaspoc0/providers/Microsoft.MachineLearningServices/workspaces/suriyakaspoc0ws0/onlineEndpoints/suriyakaspoc0ws0ep0/deployments/suriyakaspoc0ws0dep0",
+                            "operator": "LessThan",
+                            "statistic": "Max",
+                            "threshold": 5,
+                            "timeAggregation": "Maximum",
+                            "timeGrain": "PT1M",
+                            "timeWindow": "PT5M",
+                            "Dimensions": [],
+                            "dividePerInstance": false
+                        }
+                    }
+                ]
+            }
+        ],
+        "notifications": [],
+        "targetResourceLocation": "eastus"
+    },
+    "id": "/subscriptions/ea4faa5b-5e44-4236-91f6-5483d5b17d14/resourceGroups/suriyakaspoc0/providers/microsoft.insights/autoscalesettings/as-rpm",
+    "name": "as-rpm",
+    "type": "Microsoft.Insights/autoscaleSettings"
+}

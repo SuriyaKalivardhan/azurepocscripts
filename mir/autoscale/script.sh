@@ -1,0 +1,1 @@
+xargs -I %\n -P 50 curl -X POST https://suriyakaspoc0ws0ep0.eastus.inference.ml.azure.com/inference -H "Authorization: Bearer il4Vf6JDbdc3Wp0PHpccmqBWoyBYLs7F" -d '{"Id":"1234", "Type":"Inference", "Input":"ScoringInput"}' < <(printf '%s\n' {1..10000000})
